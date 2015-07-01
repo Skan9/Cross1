@@ -31,7 +31,8 @@ private:
     Ui::MainWindow *ui;
    // const int n=20;
     QTableWidget tbl;
-    int col,row,max,ccol,crow, rcol,rrow,num_b;
+    int ccol,crow, rcol,rrow,num_b;
+
     QChar ** f;
     QString filename;
 

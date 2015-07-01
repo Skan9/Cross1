@@ -2,6 +2,8 @@
 #include "ui_mainwindow.h"
 #include <QtGui>
 #include <QFileDialog>
+int smax=-2;
+int max=0;
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow)
@@ -25,7 +27,7 @@ MainWindow::~MainWindow()
 
 
 void MainWindow::on_pushButton_clicked()
-{
+{    Watch( );
     //Create_Feld();
     Seach_Feld();
     //Watch( );
@@ -54,27 +56,38 @@ void MainWindow::Create_Feld()
 
 void MainWindow::Seach_Feld()
 {
-    int numc,numr=0;
-    col=0;
-    row=0;
+
+   /* if(max!=0 && smax!=max)
+    {
+        return;
+
+    }
+    else if (max!=0 && smax==max) QMessageBox::information(this,"ERROR","error");*/
+
+
+    int numc=0;
+     int  numr=0;
+    int col=0;
+    int row=0;
     max=0;
-    ccol=0;
-    crow=0;
-    rcol=0;
-    rrow=0;
+    ccol=-1;
+    crow=-1;
+    rcol=-1;
+    rrow=-1;
     num_b=0;
     for(int i=0;i<20;i++)
     {
         for (int j=0;j<20;j++)
         {
-            QRegExp reg("[А-Яа-я]");
-            QVariant v(reg);
-            if(f[i][j]=='*'||(f[i][j]==v&&(f[i][j-1]=='*'||f[i-1][j]=='*'||f[i][j+1]=='*'||f[i+1][j]=='*')))
+            //QRegExp reg("[А-Яа-я]");
+            //QVariant v(reg);
+            if(f[i][j]=='*' || (f[i][j]!='*' && f[i][j]!=' ' && (f[i][j-1]=='*' ||  f[i][j+1]=='*' )))
             {
                 row++;
-                if(f[j][i]!='*'||f[j][i]!=' ')
+                if(f[i][j]!='*' && f[i][j]!=' ')
                 {
                     numr=j;
+
                 }
 
             }
@@ -83,8 +96,8 @@ void MainWindow::Seach_Feld()
                 if (max<row)
                 {
                     max=row;
-                    ccol=0;
-                    crow=0;
+                    ccol=-1;
+                    crow=-1;
                     rcol=j;
                     rrow=i;
                     num_b=numr;
@@ -92,15 +105,18 @@ void MainWindow::Seach_Feld()
                     numr=0;
 
                 }
+                //if (num_b!=0) QMessageBox::information(this,"ERROR","Error!!!!!!!!");
 
             }
  //=========================================================================
-            if (f[j][i]=='*'||(f[j][i]==v&&(f[j][i-1]=='*'||f[j-1][i]=='*'||f[j][i+1]=='*'||f[j+1][i]=='*')))
+            if (f[j][i]=='*' || (f[j][i]!='*' && f[j][i]!=' ' && ( f[j-1][i]=='*' ||  f[j+1][i]=='*')))
             {
                 col++;
-                if(f[j][i]!='*'||f[j][i]!=' ')
+                if(f[j][i]!='*' && f[j][i]!=' ')
                 {
                     numc=j;
+                    QMessageBox::information(this,"ERROR","Error2!!!!!!!!");
+
                 }
 
             }
@@ -109,10 +125,10 @@ void MainWindow::Seach_Feld()
                 if (max<col)
                 {
                     max=col;
-                    ccol=j;
-                    crow=i;
-                    rcol=0;
-                    rrow=0;
+                    ccol=i;
+                    crow=j;
+                    rcol=-1;
+                    rrow=-1;
                      num_b=numc;
                      col=0;
                      numc=0;
@@ -128,6 +144,7 @@ void MainWindow::Seach_Feld()
 
     if(max!=0)
     {
+        if(smax<max) smax=max;
         Seach_Word();
 
     }
@@ -137,13 +154,14 @@ void MainWindow::Seach_Feld()
 }
 void MainWindow::Seach_Word()
 {
-    QString str;
+
     QFile file(filename);
     if (!file.open(QIODevice::ReadOnly))
     { QMessageBox::information(this,"ERROR","Error!!!!!!!!");
 
         return;
     }
+
 
 
     QTextStream in(&file);
@@ -153,26 +171,22 @@ void MainWindow::Seach_Word()
 
             if (line.length()==max)
             {
-                if (num_b==0)
+              if(rcol==-1 && num_b!=0)
                 {
-
-                Add_Word(str);
-                }
-                else if(rcol==0&&num_b==0)
-                {
-
-                    if(f[num_b][ccol]==str[num_b-(crow-max)] ) Add_Word(str);
+                   // QMessageBox::information(this,"OKKKKK",f[num_b][ccol]);
+                    if(f[num_b][ccol]==line[num_b-(ccol-max)] ) Add_Word(line);
                     max=0;
                 }
-                else if(rcol==0&&num_b!=0)
+                else if(crow==-1 && num_b!=0)
                 {
-
-                     Add_Word(str);
-                     max=0;
+                 // QMessageBox::information(this,"OKKKKK",f[rrow][num_b]);
+                    if(f[rrow][num_b]==line[num_b-(rcol-max)] ) Add_Word(line);
+                    max=0;
                 }
                 else
                 {
-                    if(f[rcol-num_b][rrow]==str[crow-num_b] ) Add_Word(str);
+                  //QMessageBox::information(this,"OKKKKK","OK44");
+                    Add_Word(line);
                     max=0;
                 }
             }
@@ -183,6 +197,8 @@ void MainWindow::Seach_Word()
             }
 
         }
+       //if (max!=0 && in.atEnd())return;
+
        Seach_Feld();
     }
 
@@ -190,9 +206,9 @@ void MainWindow::Seach_Word()
 
 void MainWindow::Add_Word( QString str)
 {
-    QMessageBox::information(this,"OKKKKK","OK4");
+
     int j=0;
-    if (ccol==0 && crow==0)
+    if (ccol==-1 && crow==-1)
     {
         for (int i=rcol-max;i<rcol;i++)
         {
@@ -213,29 +229,62 @@ void MainWindow::Add_Word( QString str)
 
 
 }
-/*
-void MainWindow::Watch1( QChar r )
+/*void MainWindow::Seach_word_feld()
 {
-    for(int i=0;i<20;i++)
+    int min=10000;
+    col=0;
+    row=0;
+    max=0;
+    ccol=0;
+    crow=0;
+    rcol=0;
+    rrow=0;
+    num_b=0;
+    if(f[i][j]!='*' && f[i][j]!=' ')
     {
-        for (int j=0;j<20;j++)
+        row++;
+        if (min<row)
         {
-            QTableWidgetItem* newItem = new QTableWidgetItem(QString("%1").arg(r));
-            if (f[i][j]!=' ')
-            {
-            newItem->setBackgroundColor(QColor(192,192,192));
-            }
-            ui->tableWidget->setItem(i,j, newItem);
+            max=row;
+            ccol=0;
+            crow=0;
+            rcol=j;
+            rrow=i;
+            num_b=numr;
+            row=0;
+            numr=0;
+
         }
     }
+    if (f[j][i]!='*' && f[j][i]!=' ')
+    {
+        row++;
+        if (min<row)
+        {
+            max=row;
+            ccol=0;
+            crow=0;
+            rcol=j;
+            rrow=i;
+            num_b=numr;
+            row=0;
+            numr=0;
+
+    }
 }*/
+
+/*void MainWindow::Delete_Word( QString str)
+{
+
+}*/
+
 void MainWindow::Watch( )
 {
     for(int i=0;i<20;i++)
     {
         for (int j=0;j<20;j++)
         {
-            QTableWidgetItem* newItem = new QTableWidgetItem(QString("%1").arg(filename));
+            QTableWidgetItem* newItem = new QTableWidgetItem(QString("%1").arg(f[i][j]));
             if (f[i][j]!=' ')
             {
             newItem->setBackgroundColor(QColor(192,192,192));
