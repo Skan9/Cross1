@@ -2,7 +2,7 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
-#include <QtGui>
+
 namespace Ui {
 class MainWindow;
 }
@@ -14,27 +14,23 @@ class MainWindow : public QMainWindow
 public:
     explicit MainWindow(QWidget *parent = 0);
     ~MainWindow();
-    void Seach_Feld();
-    void Seach_Word();
-    void Add_Word( QString str);
-    void Create_Feld();
-    void Watch( );
-    void Watch1( QChar r );
 
 private slots:
-    void on_pushButton_clicked();
     void on_tableWidget_cellClicked(int row, int column);
 
-    void on_pushButton_2_clicked();
+    void on_pushButton_clicked();
+
+
 
 private:
     Ui::MainWindow *ui;
-   // const int n=20;
-    QTableWidget tbl;
-    int ccol,crow, rcol,rrow,num_b;
-
-    QChar ** f;
-    QString filename;
+    QChar** now;
+    QChar** future;
+    void Create_Future_Field();
+    void Check_Cell(int row, int col,int n);
+    void Counter_Cell(int row, int col);
+    void Copy_Future_Field_in_Now_Field();
+    void Watch( );
 
 };
 
