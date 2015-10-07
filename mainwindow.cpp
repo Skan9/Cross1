@@ -1,15 +1,19 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 #include <QtGui>
-#include <time.h>
 #include <windows.h>
+#include <QTimer>
+#include <QFileDialog>
 
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
+    timer(new QTimer(this)),
     ui(new Ui::MainWindow)
 {
-    ui->setupUi(this);
+    //timer.setSingleShot(true);
+     //timer->setInterval(300);
+       ui->setupUi(this);
        ui->tableWidget->setRowCount(50);
        ui->tableWidget->setColumnCount(50);
        now= new QChar*[51];
@@ -19,7 +23,13 @@ MainWindow::MainWindow(QWidget *parent) :
            for(int j=0;j<51;j++) now[i][j]=' ';
        }
        lab=1;
+         connect(ui->StartButton, SIGNAL(clicked()), SLOT(StartButton()));
+       connect(ui->StopButton, SIGNAL(clicked()), this, SLOT(StopButton()));
+       connect(timer, SIGNAL(timeout()), this, SLOT(Create_Future_Field()));
+        connect(ui->SaveButton, SIGNAL(clicked()), this, SLOT(saveGame()));
+        connect(ui->LoadButton, SIGNAL(clicked()), this, SLOT(loadGame()));
 }
+
 
 MainWindow::~MainWindow()
 {
@@ -47,9 +57,17 @@ void MainWindow::on_tableWidget_cellClicked(int row, int column)
 
 }
 
-void MainWindow::on_pushButton_clicked()
+void MainWindow:: StartButton()
 {
-    Create_Future_Field();
+   timer->start(500);
+
+
+}
+void MainWindow:: StopButton()
+{
+    timer->stop();
+
+
 }
 
 void MainWindow::Create_Future_Field()
@@ -121,9 +139,9 @@ void MainWindow::Copy_Future_Field_in_Now_Field()
 void MainWindow::Watch( )
 {
 
-    for(int row=0;row<50;row++)
+    for(int row=0;row<51;row++)
     {
-        for (int col=0;col<50;col++)
+        for (int col=0;col<51;col++)
         {
             QTableWidgetItem* newItem = new QTableWidgetItem(QString("%1").arg(' '));
 
@@ -138,19 +156,76 @@ void MainWindow::Watch( )
      //time = new QTimer(this);
     //connect(time, SIGNAL(timeout()), SLOT(slotUpdateDateTime()));
      //Sleep(2000);
-   // time->start(1000);
-   // Create_Future_Field();
+    //timer->start(1000);
+    //StartButton();
 }
 /*MainWindow::~masive()
 {
     delete []future;
 }*/
 
-void MainWindow::on_pushButton_2_clicked()
+
+
+void MainWindow::on_ClearButton_clicked()
 {
     for (int i = 0; i<51; i++)
     for(int j=0;j<51;j++) now[i][j]=' ';
     lab=1;
     Watch( );
+}
+void MainWindow::saveGame()
+{
+    QString fr= QFileDialog::getSaveFileName(this,tr("Save"), QDir::homePath(),tr("Save Life (*.txt)"));
+     QFile file(fr);
+     file.open(QIODevice::WriteOnly | QIODevice::Text);
+     QTextStream out(&file);
+
+      out.setCodec(QTextCodec::codecForName("windows-1251"));
+
+
+    for (int i =0; i<50; i++)
+    {
+
+        for(int j=0;j<50;j++)
+        {
+
+             out<<now[i][j];
+
+        }
+        out<<";";
+    }
+    out<<lab;
+
+    file.close();
+}
+void MainWindow::loadGame()
+{
+    QString filename = QFileDialog::getOpenFileName(this,
+                                                        tr("Open saved game"),
+                                                        QDir::homePath(),
+                                                        tr("Conway's Game Of Life File (*.txt)"));
+        if(filename.length() < 1)
+            return;
+        QFile file(filename);
+        if(!file.open(QIODevice::ReadOnly))
+            return;
+        QTextStream in(&file);
+
+
+        for(int i=0; i < 50; i++) {
+           for(int j=0;j<50;j++){
+
+               in >> now[i][j];
+           }
+
+               QString t;
+           in>>t;
+
+        }
+        in>>lab;
+        Watch();
+
+
 
 }
+
