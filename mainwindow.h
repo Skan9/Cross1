@@ -18,34 +18,29 @@ public:
     //~masive();
 
 private slots:
-    void on_tableWidget_cellClicked(int row, int column);
+    void on_tableWidget_cellClicked(int row, int column);//Выделение живых клеток
 
 
-    void on_ClearButton_clicked();
+    void on_ClearButton_clicked();//Очистка поля
 
-    void on_StopButton_clicked();
-
-
-
-    void on_StartButton_clicked();
 public slots:
-    void StartButton();
-    void StopButton();
-    void Create_Future_Field();
-    void saveGame();
-    void loadGame();
+    void StartButton();//Старт игры
+    void StopButton();// Остановка игры
+    void Create_Future_Field();//Создание массива следующего поколения
+    void saveGame();//Сохронение текущего поля
+    void loadGame();//Загрузка сохронённого поля
 private:
     Ui::MainWindow *ui;
-    QChar** now;
-    QChar** future;
-    QTimer* timer;
-    int lab;
+    QChar** now;//Массив текущего поколения
+    QChar** future;//Массив следующего поколения
+    QTimer* timer;//Таймер
+    int lab;//Номер поколения
     QFile file;
     //void Create_Future_Field();
-    void Check_Cell(int row, int col,int n);
-    void Counter_Cell(int row, int col);
-    void Copy_Future_Field_in_Now_Field();
-    void Watch( );
+    void Check_Cell(int row, int col,int n);//Определение жизни клетки для следующего поколения
+    void Counter_Cell(int row, int col);//Подсчёт живых клеток вокруг
+    void Copy_Future_Field_in_Now_Field();//Передвижение времени
+    void Watch( );//Показ на экране
 
 
 };
